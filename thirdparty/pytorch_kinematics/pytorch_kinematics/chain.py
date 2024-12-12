@@ -97,6 +97,7 @@ class Chain(object):
     def forward_kinematics(self, th, world=tf.Transform3d()):
         if not isinstance(th, dict):
             jn = self.get_joint_parameter_names()
+            print(jn, th.shape[1])
             assert len(jn) == th.shape[1]
             th_dict = dict((j, th[:,i]) for i, j in enumerate(jn))
         else:

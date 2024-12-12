@@ -52,7 +52,7 @@ def generate(args_list):
     device = torch.device('cuda')
 
     hand_model = HandModel(
-        mjcf_path='xhand/xhand_right.xml',
+        mjcf_path='xhand/xhand_right.urdf',
         mesh_path='xhand/meshes',
         contact_points_path='xhand/contact_points.json',
         penetration_points_path='xhand/penetration_points.json',

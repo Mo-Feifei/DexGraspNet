@@ -1,7 +1,7 @@
 """
-Last modified date: 2023.02.23
-Author: Jialiang Zhang, Ruicheng Wang
-Description: Entry of the program, generate small-scale experiments
+Last modified date: 2022.03.11
+Author: mzhmxzh
+Description: Entry of the program
 """
 
 import os
@@ -30,30 +30,31 @@ from utils.rot6d import robust_compute_rotation_matrix_from_ortho6d
 parser = argparse.ArgumentParser()
 # experiment settings
 parser.add_argument('--seed', default=1, type=int)
-parser.add_argument('--gpu', default="2", type=str)
+parser.add_argument('--gpu', default="1", type=str)
 parser.add_argument('--object_code_list', default=
     [
-        'sem-Car-2f28e2bd754977da8cfac9da0ff28f62',
-        'sem-Car-27e267f0570f121869a949ac99a843c4',
-        'sem-Car-669043a8ce40d9d78781f76a6db4ab62',
-        'sem-Car-58379002fbdaf20e61a47cff24512a0',
-        'sem-Car-aeeb2fb31215f3249acee38782dd9680',
+        'ddg-gd_banana_poisson_002',
+        'mujoco-Ecoforms_Plant_Plate_S11Turquoise',
+        'sem-Bottle-437678d4bc6be981c8724d5673a063a6',
+        'core-mug-8570d9a8d24cb0acbebd3c0c0c70fb03',
+        'sem-Camera-7bff4fd4dc53de7496dece3f86cb5dd5',
     ], type=list)
-parser.add_argument('--name', default='exp_2', type=str)
+parser.add_argument('--name', default='exp_33', type=str)
 parser.add_argument('--n_contact', default=4, type=int)
 parser.add_argument('--batch_size', default=128, type=int)
-parser.add_argument('--n_iter', default=6000, type=int)
-# hyper parameters (** Magic, don't touch! **)
+parser.add_argument('--n_iter', default=2000, type=int)
+# hyper parameters
 parser.add_argument('--switch_possibility', default=0.5, type=float)
 parser.add_argument('--mu', default=0.98, type=float)
-parser.add_argument('--step_size', default=0.005, type=float)
+parser.add_argument('--eps', default=1e-6, type=float)
+parser.add_argument('--noise_size', default=0.005, type=float)
 parser.add_argument('--stepsize_period', default=50, type=int)
 parser.add_argument('--starting_temperature', default=18, type=float)
 parser.add_argument('--annealing_period', default=30, type=int)
 parser.add_argument('--temperature_decay', default=0.95, type=float)
 parser.add_argument('--w_dis', default=100.0, type=float)
 parser.add_argument('--w_pen', default=100.0, type=float)
-parser.add_argument('--w_spen', default=10.0, type=float)
+parser.add_argument('--w_spen', default=30.0, type=float)
 parser.add_argument('--w_joints', default=1.0, type=float)
 # initialization settings
 parser.add_argument('--jitter_strength', default=0.1, type=float)
@@ -84,10 +85,9 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('running on', device)
 
 hand_model = HandModel(
-    mjcf_path='mjcf/shadow_hand_wrist_free.xml',
-    mesh_path='mjcf/meshes',
-    contact_points_path='mjcf/contact_points.json',
-    penetration_points_path='mjcf/penetration_points.json',
+    urdf_path='xhand/xhand_right.urdf',
+    contact_points_path='xhand/contact_points.json', 
+    n_surface_points=1000, 
     device=device
 )
 
@@ -110,7 +110,7 @@ optim_config = {
     'starting_temperature': args.starting_temperature,
     'temperature_decay': args.temperature_decay,
     'annealing_period': args.annealing_period,
-    'step_size': args.step_size,
+    'noise_size': args.noise_size,
     'stepsize_period': args.stepsize_period,
     'mu': args.mu,
     'device': device
@@ -128,12 +128,6 @@ logger_config = {
     'thres_pen': args.thres_pen
 }
 logger = Logger(log_dir=os.path.join('../data/experiments', args.name, 'logs'), **logger_config)
-
-
-# log settings
-
-with open(os.path.join('../data/experiments', args.name, 'output.txt'), 'w') as f:
-    f.write(str(args) + '\n')
 
 
 # optimize
@@ -174,11 +168,11 @@ for step in tqdm(range(1, args.n_iter + 1), desc='optimizing'):
 translation_names = ['WRJTx', 'WRJTy', 'WRJTz']
 rot_names = ['WRJRx', 'WRJRy', 'WRJRz']
 joint_names = [
-    'robot0:FFJ3', 'robot0:FFJ2', 'robot0:FFJ1', 'robot0:FFJ0',
-    'robot0:MFJ3', 'robot0:MFJ2', 'robot0:MFJ1', 'robot0:MFJ0',
-    'robot0:RFJ3', 'robot0:RFJ2', 'robot0:RFJ1', 'robot0:RFJ0',
-    'robot0:LFJ4', 'robot0:LFJ3', 'robot0:LFJ2', 'robot0:LFJ1', 'robot0:LFJ0',
-    'robot0:THJ4', 'robot0:THJ3', 'robot0:THJ2', 'robot0:THJ1', 'robot0:THJ0'
+    'right_hand_thumb_bend_joint', 'right_hand_thumb_rota_joint1', 'right_hand_thumb_rota_joint2',
+    'right_hand_index_bend_joint', 'right_hand_index_bend_joint1', 'right_hand_index_bend_joint2', 
+    'right_hand_mid_joint1', 'right_hand_mid_joint2',
+    'right_hand_ring_joint1', 'right_hand_ring_joint2', 
+    'right_hand_pinky_joint1', 'right_hand_pinky_joint2'
 ]
 try:
     shutil.rmtree(os.path.join('../data/experiments', args.name, 'results'))

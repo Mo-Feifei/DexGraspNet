@@ -99,6 +99,7 @@ def initialize_convex_hull(hand_model, object_model, args):
 
     # initialize contact point indices
 
+    print("**:",hand_model.n_contact_candidates)
     contact_point_indices = torch.randint(hand_model.n_contact_candidates, size=[total_batch_size, args.n_contact], device=device)
 
     hand_model.set_parameters(hand_pose, contact_point_indices)

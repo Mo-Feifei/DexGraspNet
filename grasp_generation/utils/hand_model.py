@@ -71,7 +71,7 @@ class HandModel:
                     elif visual.geom_type == "capsule":
                         link_mesh = tm.primitives.Capsule(radius=visual.geom_param[0], height=visual.geom_param[1] * 2).apply_translation((0, 0, -visual.geom_param[1]))
                     elif visual.geom_type == "mesh":
-                        link_mesh = tm.load_mesh(os.path.join(mesh_path, visual.geom_param[0].split(":")[1]+".obj"), process=False)
+                        link_mesh = tm.load_mesh(os.path.join(mesh_path, visual.geom_param[0]+".STL"), process=False)
                         if visual.geom_param[1] is not None:
                             scale = torch.tensor(visual.geom_param[1], dtype=torch.float, device=device)
                     vertices = torch.tensor(link_mesh.vertices, dtype=torch.float, device=device)
@@ -139,6 +139,7 @@ class HandModel:
         self.link_name_to_link_index = dict(zip([link_name for link_name in self.mesh], range(len(self.mesh))))
 
         self.contact_candidates = [self.mesh[link_name]['contact_candidates'] for link_name in self.mesh]
+        print(self.contact_candidates)
         self.global_index_to_link_index = sum([[i] * len(contact_candidates) for i, contact_candidates in enumerate(self.contact_candidates)], [])
         self.contact_candidates = torch.cat(self.contact_candidates, dim=0)
         self.global_index_to_link_index = torch.tensor(self.global_index_to_link_index, dtype=torch.long, device=device)

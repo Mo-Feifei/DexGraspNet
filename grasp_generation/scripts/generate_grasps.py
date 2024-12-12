@@ -52,10 +52,10 @@ def generate(args_list):
     device = torch.device('cuda')
 
     hand_model = HandModel(
-        mjcf_path='mjcf/shadow_hand_wrist_free.xml',
-        mesh_path='mjcf/meshes',
-        contact_points_path='mjcf/contact_points.json',
-        penetration_points_path='mjcf/penetration_points.json',
+        mjcf_path='xhand/xhand_right.xml',
+        mesh_path='xhand/meshes',
+        contact_points_path='xhand/contact_points.json',
+        penetration_points_path='xhand/penetration_points.json',
         device=device
     )
 
@@ -118,11 +118,11 @@ def generate(args_list):
     translation_names = ['WRJTx', 'WRJTy', 'WRJTz']
     rot_names = ['WRJRx', 'WRJRy', 'WRJRz']
     joint_names = [
-        'robot0:FFJ3', 'robot0:FFJ2', 'robot0:FFJ1', 'robot0:FFJ0',
-        'robot0:MFJ3', 'robot0:MFJ2', 'robot0:MFJ1', 'robot0:MFJ0',
-        'robot0:RFJ3', 'robot0:RFJ2', 'robot0:RFJ1', 'robot0:RFJ0',
-        'robot0:LFJ4', 'robot0:LFJ3', 'robot0:LFJ2', 'robot0:LFJ1', 'robot0:LFJ0',
-        'robot0:THJ4', 'robot0:THJ3', 'robot0:THJ2', 'robot0:THJ1', 'robot0:THJ0'
+        'right_hand_thumb_bend_joint', 'right_hand_thumb_rota_joint1', 'right_hand_thumb_rota_joint2',
+        'right_hand_index_bend_joint', 'right_hand_index_joint1', 'right_hand_index_joint2',
+        'right_hand_mid_joint1', 'right_hand_mid_joint2',
+        'right_hand_ring_joint1', 'right_hand_ring_joint2', 
+        'right_hand_pinky_joint1', 'right_hand_pinky_joint2'
     ]
     for i, object_code in enumerate(object_code_list):
         data_list = []
